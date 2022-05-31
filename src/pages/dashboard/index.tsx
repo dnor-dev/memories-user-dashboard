@@ -22,19 +22,79 @@ import CreateMemory from "../../components/CreateMemory";
 import * as postActions from "../../store/actions/post";
 import { useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
+import { useNavigate } from "react-router";
+import Pagination from "../../components/Pagination";
 
 const Dashboard = () => {
   const { user, authLoading } = useSelector((state: RootState) => state.auth);
   const posts = useSelector((state: RootState) => state.posts);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [postId, setPostId] = useState<any>(null);
+  const [searchText, setSearchText] = useState("");
+  const navigate = useNavigate();
+  const [page, setPage] = useState(1);
 
-  const { _getPosts } = bindActionCreators(postActions, dispatch);
+  const getCalls = async () => {
+    await _getPosts(page);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    _getPosts();
+    if (searchText !== "") {
+      posts.data.filter((post) => {
+        return (
+          post.message.includes(searchText.trim()) ||
+          post.title.includes(searchText.trim()) ||
+          post.tags.includes(searchText.trim())
+        );
+      });
+    } else if (page) {
+      getCalls();
+    }
     // eslint-disable-next-line
   }, [posts]);
+
+  const { _getPosts, _searchPosts } = bindActionCreators(postActions, dispatch);
+
+  const callback = () => {
+    navigate(
+      `/dashboard/search?searchQuery=${searchText || "none"}&tags=${
+        searchText || "none"
+      }`,
+    );
+  };
+  const postSearch = () => {
+    if (searchText === "") {
+      dispatch({
+        type: "alert",
+        payload: {
+          title: "Please fill the search field",
+          status: "warning",
+        },
+      });
+    } else {
+      setLoading(true);
+      _searchPosts(
+        {
+          searchQuery: searchText.trim(),
+          tags: searchText.trim(),
+        },
+        setLoading,
+        callback,
+      );
+    }
+  };
+
+  const handleSearch = async () => {
+    await postSearch();
+  };
+
+  const handleKeyPress = async (e: any) => {
+    if (e.keyCode === 13) {
+      await postSearch();
+    }
+  };
 
   return (
     <>
@@ -58,7 +118,12 @@ const Dashboard = () => {
                 <Input
                   pr="4.5rem"
                   type="text"
+                  value={searchText}
                   placeholder="Search for memories or tags"
+                  onChange={(e) => {
+                    setSearchText(e.target.value);
+                  }}
+                  onKeyPress={handleKeyPress}
                 />
                 <InputRightElement width="fit-content">
                   <Button
@@ -67,6 +132,7 @@ const Dashboard = () => {
                     _hover={{
                       bgColor: "blue.800",
                     }}
+                    onClick={handleSearch}
                   >
                     Search
                   </Button>
@@ -74,16 +140,32 @@ const Dashboard = () => {
               </InputGroup>
             </FormControl>
             <Stack alignItems="top" direction="row" spacing={5}>
-              <Grid templateColumns="repeat(3, 1fr)" gap={3} flex={2.5}>
-                {posts.data.length !== 0 &&
-                  posts.data.map((post, index) => (
-                    <GridItem key={index}>
-                      <Card {...post} setLoading={setLoading} />
-                    </GridItem>
-                  ))}
-              </Grid>
-              <Box flex={1}>
-                <CreateMemory />
+              {posts.data.length !== 0 && (
+                <Stack alignItems="center">
+                  <Grid templateColumns="repeat(3, 1fr)" gap={3} maxW="900px">
+                    {posts.data.map((post) => (
+                      <GridItem key={post._id}>
+                        <Card
+                          {...post}
+                          setLoading={setLoading}
+                          setPostId={setPostId}
+                        />
+                      </GridItem>
+                    ))}
+                  </Grid>
+                  <Box pt={5}>
+                    <Pagination
+                      page={page}
+                      setPage={setPage}
+                      totalPages={posts.numberOfPages}
+                      setLoading={setLoading}
+                      searchText={searchText}
+                    />
+                  </Box>
+                </Stack>
+              )}
+              <Box>
+                <CreateMemory postId={postId} setPostId={setPostId} />
               </Box>
             </Stack>
           </Stack>

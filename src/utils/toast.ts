@@ -20,7 +20,7 @@ const Toast = () => {
         title,
         description,
         status,
-        duration: 2000,
+        duration: 3000,
         isClosable: true,
         containerStyle: {
           borderRadius: "10px",

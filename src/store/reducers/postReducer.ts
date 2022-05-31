@@ -44,11 +44,26 @@ const postReducer = (
 ): postState => {
   switch (action.type) {
     case actionTypes.GET_POSTS:
-      return action.payload;
+      return {
+        ...state,
+        ...action.payload,
+      };
 
     case actionTypes.CREATE_POSTS:
       state.data.push(action.payload);
       return state;
+
+    case actionTypes.UPDATE_POSTS:
+      state.data.map((d) =>
+        d._id === action.payload._id ? action.payload : d,
+      );
+      return state;
+
+    case actionTypes.SEARCH_POSTS:
+      return {
+        ...state,
+        data: [...action.payload],
+      };
 
     case actionTypes.DELETE_POSTS:
       state.data.filter((post) => post._id !== action.payload.id);

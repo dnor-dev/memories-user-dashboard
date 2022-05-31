@@ -23,6 +23,7 @@ import { Helmet } from "react-helmet";
 import authActions from "../../store/actions/auth";
 import { useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
+import { useNavigate } from "react-router";
 
 type InputFields = {
   firstName: string;
@@ -47,6 +48,7 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { _signup } = bindActionCreators(authActions, dispatch);
 
@@ -57,7 +59,7 @@ const Signup = () => {
   } = useForm<InputFields>({ resolver: yupResolver(schema) });
 
   const callback = () => {
-    console.log("Yhup, youve created an acct ");
+    navigate("/dashboard");
   };
 
   const signup: SubmitHandler<InputFields> = async (data) => {

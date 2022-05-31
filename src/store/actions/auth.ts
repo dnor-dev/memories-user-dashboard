@@ -89,8 +89,10 @@ const _signup =
     callback: () => void,
   ) =>
   async (dispatch: Dispatch<Action>) => {
+    const cookies = new Cookies();
     try {
       const res = await AuthService.signup(data);
+      cookies.remove("memories_app");
       sessionStorage.setItem("memories_app", res.data.token);
 
       dispatch({

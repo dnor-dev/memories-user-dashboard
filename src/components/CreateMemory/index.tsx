@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Stack,
   FormControl,
@@ -10,9 +10,10 @@ import {
   Textarea,
   Box,
 } from "@chakra-ui/react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as postActions from "../../store/actions/post";
 import { bindActionCreators } from "redux";
+import { RootState } from "../../store/reducers";
 
 interface IProps {
   title: string;
@@ -21,7 +22,7 @@ interface IProps {
   image: string | ArrayBuffer | null;
 }
 
-const CreateMemory = () => {
+const CreateMemory = ({ postId, setPostId }: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const [postData, setPostData] = useState<IProps>({
     title: "",
@@ -32,7 +33,13 @@ const CreateMemory = () => {
   const dispatch = useDispatch();
   const shadow = useColorModeValue("#aaa", "#000");
   const [clearImage, setClearImage] = useState(1);
-  const { _createPosts } = bindActionCreators(postActions, dispatch);
+  const { _createPosts, _updatePosts } = bindActionCreators(
+    postActions,
+    dispatch,
+  );
+  const { posts } = useSelector((state: RootState) => state);
+
+  const editPost = postId && posts.data.find((p) => p._id === postId);
 
   const clearFields = () => {
     setPostData({
@@ -42,14 +49,29 @@ const CreateMemory = () => {
       image: "",
     });
     setClearImage(Math.random());
+    setPostId(null);
   };
 
   const callback = () => {
     clearFields();
   };
 
+  useEffect(() => {
+    if (editPost) {
+      setPostData({
+        ...postData,
+        title: editPost.title,
+        message: editPost.message,
+        Tags: editPost.tags.join(),
+        image: editPost.selectedFile,
+      });
+    }
+
+    // eslint-disable-next-line
+  }, [postId]);
+
   const handleClick = async () => {
-    if (postData.title === "" || postData.image === "")
+    if (postData.title === "" && postData.image === "")
       dispatch({
         type: "alert",
         payload: {
@@ -59,7 +81,11 @@ const CreateMemory = () => {
       });
     else {
       setIsLoading(true);
-      await _createPosts(postData, setIsLoading, callback);
+      if (postId) {
+        _updatePosts(postData, postId, setIsLoading, clearFields);
+      } else {
+        await _createPosts(postData, setIsLoading, callback);
+      }
     }
   };
 
@@ -89,10 +115,15 @@ const CreateMemory = () => {
   };
 
   return (
-    <Box boxShadow={`0 0 7px ${shadow}`} borderRadius="10px" padding="1rem">
+    <Box
+      boxShadow={`0 0 7px ${shadow}`}
+      borderRadius="10px"
+      padding="1rem"
+      minW="300px"
+    >
       <Center>
         <Text fontSize="2xl" fontWeight="bold">
-          Create a Memory
+          {postId ? "Edit your Memory" : "Create a Memory"}
         </Text>
       </Center>
 
@@ -151,10 +182,10 @@ const CreateMemory = () => {
               }}
               isFullWidth
               isLoading={isLoading}
-              loadingText="Creating..."
+              loadingText={postId ? "Editing..." : "Creating..."}
               onClick={handleClick}
             >
-              Create
+              {postId ? "Edit" : "Create"}
             </Button>
           </FormControl>
 

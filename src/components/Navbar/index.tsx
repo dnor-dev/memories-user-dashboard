@@ -56,7 +56,7 @@ const Navbar = () => {
                     as={IconButton}
                     aria-label="Options"
                     icon={<Icon as={IoIosArrowDown} />}
-                    variant="outline"
+                    variant="ghost"
                   />
                   <MenuList>
                     <MenuItem icon={<Icon as={FiLogOut} />}>Logout</MenuItem>
