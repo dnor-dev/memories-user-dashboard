@@ -3,39 +3,30 @@ import { Button, ButtonGroup, IconButton, Center } from "@chakra-ui/react";
 import { BiChevronLeft } from "react-icons/bi";
 import { BiChevronRight } from "react-icons/bi";
 
-const Pagination = ({
-  page,
-  totalPages,
-  setPage,
-  setLoading,
-  searchText,
-}: any) => {
+const Pagination = ({ page, totalPages, setPage, searchText }: any) => {
   let renderButtonPages = [];
   for (let i = 1; i <= totalPages; i++) {
     renderButtonPages.push(i);
   }
 
-  const handleClick = async (e: any) => {
-    setLoading(true);
-    await setPage(Number(e.target.id));
+  const handleClick = (e: any) => {
+    setPage(Number(e.target.id));
     window.scroll({
       top: 0,
       behavior: "smooth",
     });
   };
 
-  const handleNext = async (e: any) => {
-    setLoading(true);
-    await setPage(page + 1);
+  const handleNext = (e: any) => {
+    setPage(page + 1);
     window.scroll({
       top: 0,
       behavior: "smooth",
     });
   };
 
-  const handlePrev = async (e: any) => {
-    setLoading(true);
-    await setPage(page - 1);
+  const handlePrev = (e: any) => {
+    setPage(page - 1);
     window.scroll({
       top: 0,
       behavior: "smooth",

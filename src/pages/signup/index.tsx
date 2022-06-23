@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Stack,
   FormControl,
@@ -21,9 +21,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Helmet } from "react-helmet";
 import authActions from "../../store/actions/auth";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
 import { useNavigate } from "react-router";
+import { RootState } from "../../store/reducers";
 
 type InputFields = {
   firstName: string;
@@ -51,6 +52,18 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const { _signup } = bindActionCreators(authActions, dispatch);
+  const { isAuthenticated, authLoading, user } = useSelector(
+    (state: RootState) => state.auth,
+  );
+
+  useEffect(() => {
+    if (user._id !== "" && isAuthenticated && !authLoading) {
+      navigate("/dashboard");
+    } else {
+      navigate("/signup");
+    }
+    // eslint-disable-next-line
+  }, [isAuthenticated, authLoading, user]);
 
   const {
     handleSubmit,

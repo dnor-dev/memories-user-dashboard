@@ -167,13 +167,25 @@ const _getProfile = () => async (dispatch: Dispatch<Action>) => {
   } catch (error) {
     cookies.remove("memories_app");
     sessionStorage.removeItem("memories_app");
-    dispatch({
-      type: actionTypes.AUTH_LOADING,
-      payload: false,
-    });
   }
 };
 
-const authActions = { _signin, _signup, _getProfile };
+const _logout = (callback: () => void) => (dispatch: Dispatch<Action>) => {
+  sessionStorage.removeItem("memories_app");
+  const cookies = new Cookies();
+  cookies.remove("memories_app");
+  dispatch({
+    type: actionTypes.PROFILE,
+    payload: {
+      _id: "",
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
+  callback();
+};
+
+const authActions = { _signin, _signup, _getProfile, _logout };
 
 export default authActions;

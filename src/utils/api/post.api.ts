@@ -4,8 +4,8 @@ import { AxiosInstance } from "axios";
 class Post {
   constructor(private readonly request: AxiosInstance) {}
 
-  async getPosts(page?: number) {
-    return this.request.get(`/posts?page=${page}`);
+  async getPosts() {
+    return this.request.get(`/posts`);
   }
 
   async createPosts(data: {
@@ -38,12 +38,20 @@ class Post {
     return this.request.patch(`/posts/${id}/likePosts`);
   }
 
+  async commentPosts(id: string, comment: string) {
+    return this.request.post(`/posts/${id}/postComments`, { comment });
+  }
+
   async searchPosts(data: { searchQuery: string; tags: string }) {
     return this.request.get(
       `/posts/search?searchQuery=${data.searchQuery || "none"}&tags=${
         data.tags || "none"
       }`,
     );
+  }
+
+  async getPost(id: any) {
+    return this.request.get(`/posts/${id}`);
   }
 }
 

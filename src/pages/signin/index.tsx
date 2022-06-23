@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Stack,
   FormControl,
@@ -23,8 +23,9 @@ import * as yup from "yup";
 import { Helmet } from "react-helmet";
 import { bindActionCreators } from "redux";
 import authActions from "../../store/actions/auth";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import { RootState } from "../../store/reducers";
 
 type InputFields = {
   email: string;
@@ -46,6 +47,18 @@ const Signin = () => {
   const navigate = useNavigate();
 
   const { _signin } = bindActionCreators(authActions, dispatch);
+  const { isAuthenticated, authLoading, user } = useSelector(
+    (state: RootState) => state.auth,
+  );
+
+  useEffect(() => {
+    if (user._id !== "" && isAuthenticated && !authLoading) {
+      navigate("/dashboard");
+    }else{
+      navigate("/signin")
+    }
+    // eslint-disable-next-line
+  }, [isAuthenticated, authLoading, user]);
 
   const {
     handleSubmit,

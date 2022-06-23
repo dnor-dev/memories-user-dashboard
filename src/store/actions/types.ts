@@ -9,6 +9,8 @@ export enum actionTypes {
   UPDATE_POSTS = "update_posts",
   LIKE_POSTS = "like_posts",
   SEARCH_POSTS = "search_posts",
+  GET_POST = "get_post",
+  COMMENT = "comment",
 }
 
 interface alertAction {
@@ -53,6 +55,22 @@ interface GetPosts {
     currentPage: any;
     numberOfPages: any;
     total: any;
+  };
+}
+
+interface GetPost {
+  type: actionTypes.GET_POST;
+  payload: {
+    _id: string;
+    title: string;
+    message: string;
+    name: string;
+    creator: string;
+    tags: string[];
+    selectedFile: string;
+    likes: string[];
+    comments: string[];
+    createdAt: string;
   };
 }
 
@@ -115,16 +133,34 @@ interface SearchPosts {
   }[];
 }
 
+interface Comment {
+  type: actionTypes.COMMENT;
+  payload: {
+    _id: string;
+    title: string;
+    message: string;
+    name: string;
+    creator: string;
+    tags: string[];
+    selectedFile: string;
+    likes: string[];
+    comments: string[];
+    createdAt: string;
+  };
+}
+
 type Action =
   | alertAction
   | Auth
   | Profile
   | AuthLoading
   | GetPosts
+  | GetPost
   | CreatePosts
   | UpdatePosts
   | DeletePosts
   | LikePosts
+  | Comment
   | SearchPosts;
 
 export default Action;

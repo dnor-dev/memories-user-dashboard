@@ -21,6 +21,7 @@ import * as postActions from "../../store/actions/post";
 import { useDispatch, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
 import { RootState } from "../../store/reducers";
+import { Link } from "react-router-dom";
 
 type Props = {
   _id: string;
@@ -116,10 +117,14 @@ const Card = ({
                   </Tag>
                 ))}
             </HStack>
-            <Text mt={3} mb={1}>
-              {title}
-            </Text>
-            <Text fontSize="small">{truncate(message, { length: 30 })}</Text>
+            <Link to={`posts/${_id}`}>
+              <Text mt={3} mb={1}>
+                {title}
+              </Text>
+            </Link>
+            <Link to={`posts/${_id}`}>
+              <Text fontSize="small">{truncate(message, { length: 30 })}</Text>
+            </Link>
             <Stack
               mt={4}
               alignItems="center"

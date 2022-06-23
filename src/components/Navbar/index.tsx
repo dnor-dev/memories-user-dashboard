@@ -17,16 +17,37 @@ import {
 import { Link } from "react-router-dom";
 import CustomContainer from "../CustomContainer";
 import Logo from "../Logo";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/reducers";
-import { IoIosArrowDown } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
+import authActions from "../../store/actions/auth";
+import { bindActionCreators } from "redux";
+import { useNavigate } from "react-router";
 
 const Navbar = () => {
   const text = useColorModeValue("#fff", "gray.800");
   const { user, isAuthenticated } = useSelector(
     (state: RootState) => state.auth,
   );
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { _logout } = bindActionCreators(authActions, dispatch);
+
+  const date = new Date();
+
+  const greeting =
+    date.getHours() < 12
+      ? "Good morning"
+      : date.getHours() >= 12 && date.getHours() < 17
+      ? "Good afternoon"
+      : "Good evening";
+
+  const callback = () => {
+    navigate("/signin");
+  };
+  const handleClick = () => {
+    _logout(callback);
+  };
 
   return (
     <Box
@@ -49,17 +70,26 @@ const Navbar = () => {
           <Stack alignItems="center">
             {isAuthenticated && user.name !== "" ? (
               <HStack spacing={5}>
-                <Text>Good evening, {user.name.split(" ")[0]}</Text>
-                <Avatar name={user.name} />
+                <Text>
+                  {greeting}, {user.name.split(" ")[0]}
+                </Text>
                 <Menu>
                   <MenuButton
                     as={IconButton}
                     aria-label="Options"
-                    icon={<Icon as={IoIosArrowDown} />}
+                    icon={<Avatar name={user.name} />}
                     variant="ghost"
+                    _focus={{
+                      outline: "none",
+                    }}
                   />
                   <MenuList>
-                    <MenuItem icon={<Icon as={FiLogOut} />}>Logout</MenuItem>
+                    <MenuItem
+                      icon={<Icon as={FiLogOut} />}
+                      onClick={handleClick}
+                    >
+                      Logout
+                    </MenuItem>
                   </MenuList>
                 </Menu>
               </HStack>

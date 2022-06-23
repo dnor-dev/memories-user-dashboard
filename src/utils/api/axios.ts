@@ -18,7 +18,7 @@ api.interceptors.request.use(
   (config) => {
     const cookies = new Cookies();
     const token =
-      cookies.get("memories_app", {}) || sessionStorage.getItem("memories_app");
+      cookies.get("memories_app") || sessionStorage.getItem("memories_app");
 
     if (token) {
       config.headers = {

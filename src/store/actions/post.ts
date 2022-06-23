@@ -4,13 +4,18 @@ import PostService from "../../utils/api/post.api";
 import CloudinaryApiService from "../../utils/api/media.api";
 
 export const _getPosts =
-  (page?: number) => async (dispatch: Dispatch<Action>) => {
+  (setLoading: (x: boolean) => void) => async (dispatch: Dispatch<Action>) => {
     try {
-      const res = await PostService.getPosts(page);
+      const res = await PostService.getPosts();
+      dispatch({
+        type: actionTypes.GET_POST,
+        payload: res.data,
+      });
       dispatch({
         type: actionTypes.GET_POSTS,
         payload: res.data,
       });
+      setLoading && setLoading(false);
     } catch (error) {}
   };
 
@@ -277,3 +282,76 @@ export const _searchPosts =
       }
     }
   };
+
+export const _comment =
+  (id: string, comment: string, setLoading: (x: boolean) => void) =>
+  async (dispatch: Dispatch<Action>) => {
+    try {
+      const res = await PostService.commentPosts(id, comment);
+      dispatch({
+        type: actionTypes.COMMENT,
+        payload: res.data,
+      });
+      dispatch({
+        type: actionTypes.ALERT,
+        payload: {
+          title: "Done.",
+          status: "success",
+          description: "You've commented",
+        },
+      });
+      setLoading && setLoading(false);
+      return await res.data.comments;
+    } catch (error: any) {
+      setLoading && setLoading(false);
+      if (error?.message === "Network Error") {
+        dispatch({
+          type: actionTypes.ALERT,
+          payload: {
+            title: "You are offline",
+            status: "warning",
+          },
+        });
+      } else if (error?.response?.data?.message) {
+        dispatch({
+          type: actionTypes.ALERT,
+          payload: {
+            title: error.response.data.message,
+            status: "error",
+          },
+        });
+      } else {
+        dispatch({
+          type: actionTypes.ALERT,
+          payload: {
+            title: error.message,
+            status: "error",
+            description: "Please try again.",
+          },
+        });
+      }
+    }
+  };
+
+export const _getPost = (id: any) => async (dispatch: Dispatch<Action>) => {
+  try {
+    const res = await PostService.getPost(id);
+    dispatch({
+      type: actionTypes.GET_POST,
+      payload: res.data,
+    });
+    dispatch({
+      type: actionTypes.GET_POSTS,
+      payload: res.data,
+    });
+  } catch (error: any) {
+    dispatch({
+      type: actionTypes.ALERT,
+      payload: {
+        title: "Post not found",
+        status: "error",
+        description: "Please try again.",
+      },
+    });
+  }
+};

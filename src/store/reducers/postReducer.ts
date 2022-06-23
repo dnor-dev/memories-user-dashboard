@@ -13,9 +13,6 @@ type postState = {
     comments: string[];
     createdAt: string;
   }[];
-  currentPage: any;
-  numberOfPages: any;
-  total: any;
 };
 
 const initialState = {
@@ -33,9 +30,6 @@ const initialState = {
       createdAt: "",
     },
   ],
-  currentPage: null,
-  numberOfPages: null,
-  total: null,
 };
 
 const postReducer = (
@@ -49,8 +43,18 @@ const postReducer = (
         ...action.payload,
       };
 
+    case actionTypes.GET_POST:
+      state.data = [action.payload];
+      return state;
+
     case actionTypes.CREATE_POSTS:
       state.data.push(action.payload);
+      return state;
+
+    case actionTypes.COMMENT:
+      state.data.map((d) =>
+        d._id === action.payload._id ? action.payload : d,
+      );
       return state;
 
     case actionTypes.UPDATE_POSTS:

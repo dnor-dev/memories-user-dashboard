@@ -24,6 +24,7 @@ import { useDispatch } from "react-redux";
 import { bindActionCreators } from "redux";
 import { useNavigate } from "react-router";
 import Pagination from "../../components/Pagination";
+import { chunk } from "lodash";
 
 const Dashboard = () => {
   const { user, authLoading } = useSelector((state: RootState) => state.auth);
@@ -35,9 +36,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
 
-  const getCalls = async () => {
-    await _getPosts(page);
-    setLoading(false);
+  const getCalls = () => {
+    _getPosts(setLoading);
   };
 
   useEffect(() => {
@@ -49,7 +49,7 @@ const Dashboard = () => {
           post.tags.includes(searchText.trim())
         );
       });
-    } else if (page) {
+    } else {
       getCalls();
     }
     // eslint-disable-next-line
@@ -96,6 +96,8 @@ const Dashboard = () => {
     }
   };
 
+  const chunkedPosts = chunk(posts.data, 6);
+
   return (
     <>
       {loading && (
@@ -140,10 +142,10 @@ const Dashboard = () => {
               </InputGroup>
             </FormControl>
             <Stack alignItems="top" direction="row" spacing={5}>
-              {posts.data.length !== 0 && (
+              {chunkedPosts.length !== 0 && (
                 <Stack alignItems="center">
                   <Grid templateColumns="repeat(3, 1fr)" gap={3} maxW="900px">
-                    {posts.data.map((post) => (
+                    {chunkedPosts[page - 1].map((post) => (
                       <GridItem key={post._id}>
                         <Card
                           {...post}
@@ -157,8 +159,7 @@ const Dashboard = () => {
                     <Pagination
                       page={page}
                       setPage={setPage}
-                      totalPages={posts.numberOfPages}
-                      setLoading={setLoading}
+                      totalPages={Math.ceil(posts.data.length / 6)}
                       searchText={searchText}
                     />
                   </Box>
